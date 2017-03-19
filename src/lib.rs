@@ -141,3 +141,48 @@ fn test_build_0_empty() {
     // Check
     assert_eq!(0, chunks.len());
 }
+
+fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) {
+    assert!(from.is_empty());
+
+    /* Quick path in case there's nothing to do *at all*. */
+    if from.len() == 0 {
+        return;
+    }
+
+    let arity_mask = subint::of(ctx.arity);
+    // For each destination chunk:
+    for mask_m in arity_mask.permute(rank) {
+        // Pick a subchunk from which we're going to read
+        let overmask_m = mask_m & (mask_m-1);
+        let subchunk: Option<&Bitset> = from.get(&overmask_m);
+        if subchunk.is_none() {
+            /* This chunk would be blank anyway. */
+            continue;
+        }
+        let subchunk = subchunk.unwrap();
+
+        let is_any;
+        // Need to end lifetime of 'chunk' before we remove it from the container,
+        // so wrap it into a separate scope.
+        {
+        let chunk: &mut Bitset = ctx.insert_chunk(into, mask_m);
+        let collapsed_dim = mask_m & !overmask_m;
+        assert_eq!(1, collapsed_dim.count_ones(), "{}", collapsed_dim);
+        // For each face:
+        for i in masked_count::up(arity_mask.invert(mask_m)) {
+            // If both "sides" of the current "face" are implicants,
+            // then the current "face" is an implicant, too.
+            if subchunk.is(i) && subchunk.is(i | collapsed_dim) {
+                chunk.set(i);
+            }
+        }
+        is_any = chunk.is_any();
+        }
+
+        if !is_any {
+            // None were set, so prune it for the next layer.
+            into.remove(&mask_m);
+        }
+    }
+}
