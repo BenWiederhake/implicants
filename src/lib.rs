@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#![feature(closure_to_fn_coercion)]
-
 extern crate subint;
 mod bits;
 mod masked_count;
@@ -67,14 +65,28 @@ fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
     }
 }
 
+#[cfg(test)]
+fn test_sample_false(_: u32) -> bool { false }
+#[cfg(test)]
+fn test_sample_true(_: u32) -> bool { true }
+#[cfg(test)]
+fn test_sample_mod3(v: u32) -> bool { (v % 3) == 0 }
+#[cfg(test)]
+fn test_sample_mux(v: u32) -> bool { 1 == 1 & (v >> (1 + (v & 1))) }
+#[cfg(test)]
+fn test_sample_fail(_: u32) -> bool { panic!("But there is nothing to sample?!"); }
+
+#[cfg(test)]
+fn test_report_fail(_: u32, _: u32, _: bool) {
+    panic!("But there is nothing to report?!");
+}
+
 #[test]
 fn test_build_0() {
     // Prepare
-    let sample_fn: SampleFn = |a| { (a % 3) == 0 };
-    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
-        sampling_fn: sample_fn,
-        report_fn: false_fn,
+        sampling_fn: test_sample_mod3,
+        report_fn: test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
@@ -98,11 +110,9 @@ fn test_build_0() {
 #[test]
 fn test_build_0_full() {
     // Prepare
-    let sample_fn: SampleFn = |_| { true };
-    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
-        sampling_fn: sample_fn,
-        report_fn: false_fn,
+        sampling_fn: test_sample_true,
+        report_fn: test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
@@ -126,11 +136,9 @@ fn test_build_0_full() {
 #[test]
 fn test_build_0_empty() {
     // Prepare
-    let sample_fn: SampleFn = |_| { false };
-    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
-        sampling_fn: sample_fn,
-        report_fn: false_fn,
+        sampling_fn: test_sample_false,
+        report_fn: test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
@@ -190,14 +198,9 @@ fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) 
 #[test]
 fn test_build_n() {
     // Prepare
-    let sample_fn: SampleFn = |x| {
-        // Multiplexer
-        1 == 1 & (x >> (1 + (x & 1)))
-    };
-    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
-        sampling_fn: sample_fn,
-        report_fn: false_fn,
+        sampling_fn: test_sample_mux,
+        report_fn: test_report_fail,
         arity: 3,
     };
     let mut chunks_from = HashMap::new();
