@@ -230,3 +230,42 @@ fn test_build_n() {
     assert_eq!(true, c.is(0b010));
     assert_eq!(false, c.is(0b011));
 }
+
+#[test]
+fn test_build_n_empty() {
+    // Prepare
+    let ctx = Context{
+        sampling_fn: test_sample_fail,
+        report_fn: test_report_fail,
+        arity: 3,
+    };
+    let mut chunks_from = HashMap::new();
+    ctx.insert_chunk(&mut chunks_from, 0).set(0);
+    assert_eq!(1, chunks_from.len());
+    let chunks_from = chunks_from;
+    let mut chunks_into = HashMap::new();
+
+    // Call under test
+    build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
+
+    // Check
+    assert_eq!(0, chunks_into.len());
+}
+
+#[test]
+fn test_build_n_empty_imm() {
+    // Prepare
+    let ctx = Context{
+        sampling_fn: test_sample_fail,
+        report_fn: test_report_fail,
+        arity: 3,
+    };
+    let chunks_from = HashMap::new();
+    let mut chunks_into = HashMap::new();
+
+    // Call under test
+    build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
+
+    // Check
+    assert_eq!(0, chunks_into.len());
+}
