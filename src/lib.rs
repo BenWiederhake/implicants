@@ -322,12 +322,18 @@ fn test_report() {
     }
 
     // Check
-    // FIXME: Non-deterministic order.  Dang.
     assert_eq!(3, report_target.len());
     println!("{:?}", report_target);
-    assert_eq!((0, 0b000, true), report_target[0]);
-    assert_eq!((0, 0b110, false), report_target[1]);
-    assert_eq!((0, 0b111, false), report_target[2]);
+    let mut seen = vec![false; 3];
+    for entry in report_target {
+        match entry {
+            (0, 0b000, true) => { seen[0] = true; },
+            (0, 0b110, false) => { seen[1] = true; },
+            (0, 0b111, false) => { seen[2] = true; },
+            _ => { panic!("unexpected entry: {:?}", entry); }
+        }
+    }
+    assert_eq!(vec![true, true, true], seen);
 }
 
 pub fn generate<'a, 'b>(sampling_fn: &'a Fn(u32) -> bool,
