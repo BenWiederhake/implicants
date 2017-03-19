@@ -18,6 +18,7 @@
 
 extern crate subint;
 mod bits;
+mod masked_count;
 
 use std::collections::HashMap;
 use subint::raw::mk_ones;
