@@ -83,7 +83,7 @@ fn test_build_0() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let mut chunks = HashMap::new();
+    let mut chunks = ChunkMap::new();
 
     // Call under test
     build_rank_0(&mut ctx, &mut chunks);
@@ -109,7 +109,7 @@ fn test_build_0_full() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let mut chunks = HashMap::new();
+    let mut chunks = ChunkMap::new();
 
     // Call under test
     build_rank_0(&mut ctx, &mut chunks);
@@ -135,7 +135,7 @@ fn test_build_0_empty() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let mut chunks = HashMap::new();
+    let mut chunks = ChunkMap::new();
 
     // Call under test
     build_rank_0(&mut ctx, &mut chunks);
@@ -197,12 +197,12 @@ fn test_build_n() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let mut chunks_from = HashMap::new();
+    let mut chunks_from = ChunkMap::new();
     build_rank_0(&mut ctx, &mut chunks_from);
     let ctx = ctx;
     assert_eq!(1, chunks_from.len());
     let chunks_from = chunks_from;
-    let mut chunks_into = HashMap::new();
+    let mut chunks_into = ChunkMap::new();
 
     // Call under test
     build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
@@ -234,11 +234,11 @@ fn test_build_n_empty() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let mut chunks_from = HashMap::new();
+    let mut chunks_from = ChunkMap::new();
     ctx.insert_chunk(&mut chunks_from, 0).set(0);
     assert_eq!(1, chunks_from.len());
     let chunks_from = chunks_from;
-    let mut chunks_into = HashMap::new();
+    let mut chunks_into = ChunkMap::new();
 
     // Call under test
     build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
@@ -255,8 +255,8 @@ fn test_build_n_empty_imm() {
         report_fn: &mut test_report_fail,
         arity: 3,
     };
-    let chunks_from = HashMap::new();
-    let mut chunks_into = HashMap::new();
+    let chunks_from = ChunkMap::new();
+    let mut chunks_into = ChunkMap::new();
 
     // Call under test
     build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
@@ -309,7 +309,7 @@ fn test_report() {
         report_fn: &mut report,
         arity: 3,
     };
-    let mut chunks_from = HashMap::new();
+    let mut chunks_from = ChunkMap::new();
     {
     let chunk = ctx.insert_chunk(&mut chunks_from, 0);
     chunk.set(0b000);
