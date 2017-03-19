@@ -331,7 +331,7 @@ fn test_report() {
     assert_eq!((0, 0b111, false), report_target[2]);
 }
 
-pub fn generate_all<'a, 'b>(sampling_fn: &'a mut FnMut(u32) -> bool,
+pub fn generate<'a, 'b>(sampling_fn: &'a mut FnMut(u32) -> bool,
         report_fn: &'b mut FnMut(u32, u32, bool),
         arity: u32) {
     let mut ctx = Context{

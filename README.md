@@ -109,24 +109,25 @@ FIXME: Write this.
 
 ### From Rust
 
-Just use it!  Barely any dependencies.
+Just use it!
 
 ```Rust
 extern crate implicants;
-use implicants::FIXME;
 
-let my_fn = |x: u32| {(x % 3) == 0};
-let print_it = |mask_gap: u32, value: u32, is_prime: bool| {
+let mut my_fn = |x: u32| {(x % 3) == 0};
+let mut print_it = |mask_gap: u32, value: u32, is_prime: bool| {
     println!("{:032b}/{:032b} is a{} implicant.", mask_gap, value,
         if is_prime {" prime"} else {"n"});
 };
 
 println!("Hello world!");
-implicants::enumerate(6, my_fn, print_it);
+implicants::generate(&mut my_fn, &mut print_it, 3);
 println!("That's it.");
 ```
 
-FIXME: Test this.
+The only "surprise" lies in that the closure-borrow needs to be mutable,
+as the report function (here: `print_it`) will usually mutate things
+outside it's closure environment.
 
 ### From C
 
