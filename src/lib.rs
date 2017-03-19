@@ -21,7 +21,6 @@ mod bits;
 mod masked_count;
 
 use std::collections::HashMap;
-use subint::raw::mk_ones;
 use bits::Bitset;
 
 type ChunkMap = HashMap<u32, Bitset>;
@@ -72,7 +71,7 @@ fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
 fn test_build_0() {
     // Prepare
     let sample_fn: SampleFn = |a| { (a % 3) == 0 };
-    let false_fn: ReportFn = |a, b, c| { panic!("But there is nothing to report?!"); };
+    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
         sampling_fn: sample_fn,
         report_fn: false_fn,
@@ -99,8 +98,8 @@ fn test_build_0() {
 #[test]
 fn test_build_0_full() {
     // Prepare
-    let sample_fn: SampleFn = |a| { true };
-    let false_fn: ReportFn = |a, b, c| { panic!("But there is nothing to report?!"); };
+    let sample_fn: SampleFn = |_| { true };
+    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
         sampling_fn: sample_fn,
         report_fn: false_fn,
@@ -127,8 +126,8 @@ fn test_build_0_full() {
 #[test]
 fn test_build_0_empty() {
     // Prepare
-    let sample_fn: SampleFn = |a| { false };
-    let false_fn: ReportFn = |a, b, c| { panic!("But there is nothing to report?!"); };
+    let sample_fn: SampleFn = |_| { false };
+    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
     let ctx = Context{
         sampling_fn: sample_fn,
         report_fn: false_fn,
