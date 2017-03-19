@@ -64,10 +64,6 @@ fn build_rank_0(ctx: &mut Context, into: &mut ChunkMap) {
 }
 
 #[cfg(test)]
-fn test_sample_false(_: u32) -> bool { false }
-#[cfg(test)]
-fn test_sample_true(_: u32) -> bool { true }
-#[cfg(test)]
 fn test_sample_mod3(v: u32) -> bool { (v % 3) == 0 }
 #[cfg(test)]
 fn test_sample_mux(v: u32) -> bool { 1 == 1 & (v >> (1 + (v & 1))) }
@@ -109,7 +105,7 @@ fn test_build_0() {
 fn test_build_0_full() {
     // Prepare
     let mut ctx = Context{
-        sampling_fn: &mut test_sample_true,
+        sampling_fn: &mut |_| { true },
         report_fn: &mut test_report_fail,
         arity: 3,
     };
@@ -135,7 +131,7 @@ fn test_build_0_full() {
 fn test_build_0_empty() {
     // Prepare
     let mut ctx = Context{
-        sampling_fn: &mut test_sample_false,
+        sampling_fn: &mut |_| { false },
         report_fn: &mut test_report_fail,
         arity: 3,
     };
