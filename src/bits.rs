@@ -19,8 +19,6 @@
 
 extern crate fixedbitset;
 
-use subint::raw::mk_ones;
-
 pub struct Bitset {
     backing: fixedbitset::FixedBitSet,
 }

@@ -265,7 +265,7 @@ fn test_build_n_empty_imm() {
     assert_eq!(0, chunks_into.len());
 }
 
-fn report_0n(ctx: &mut Context, rank: u32, chunks: &ChunkMap) {
+fn report_0n(ctx: &mut Context, chunks: &ChunkMap) {
     let arity_mask = subint::of(ctx.arity);
     // For each chunk:
     for (&mask_m, chunk) in chunks {
@@ -319,7 +319,7 @@ fn test_report() {
     assert_eq!(1, chunks_from.len());
 
     // Call under test
-    report_0n(&mut ctx, 1, &chunks_from);
+    report_0n(&mut ctx, &chunks_from);
     }
 
     // Check
@@ -342,7 +342,7 @@ pub fn generate_all<'a, 'b>(sampling_fn: &'a mut FnMut(u32) -> bool,
     let mut map0 = ChunkMap::new();
     let mut map1 = ChunkMap::new();
     build_rank_0(&mut ctx, &mut map0);
-    report_0n(&mut ctx, 0, &mut map0);
+    report_0n(&mut ctx, &mut map0);
 
     for rank in 1..ctx.arity {
         let from: &mut ChunkMap;
@@ -356,6 +356,6 @@ pub fn generate_all<'a, 'b>(sampling_fn: &'a mut FnMut(u32) -> bool,
         }
         build_rank_n(&ctx, rank, into, from);
         from.clear();
-        report_0n(&mut ctx, rank, into);
+        report_0n(&mut ctx, into);
     }
 }
