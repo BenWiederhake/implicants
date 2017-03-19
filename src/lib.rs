@@ -264,3 +264,69 @@ fn test_build_n_empty_imm() {
     // Check
     assert_eq!(0, chunks_into.len());
 }
+
+fn report_0n(ctx: &mut Context, rank: u32, chunks: &ChunkMap) {
+    let arity_mask = subint::of(ctx.arity);
+    // For each chunk:
+    for (&mask_m, chunk) in chunks {
+        // For each face:
+        for face in masked_count::up(arity_mask.invert(mask_m)) {
+            if !chunk.is(face) {
+                /* If it's not an implicant, then it's not an implicant.
+                 * Furthermore, it's definitely not a prime implicant. */
+                continue;
+            }
+            let mut has_peer = false;
+            // For each potential peer:
+            // TODO: Compute the relevant 'peer_dir's more cleverly.
+            for peer_dir in arity_mask.permute(1) {
+                // If that peer exists and is on:
+                if (mask_m & peer_dir) == 0 && chunk.is(face ^ peer_dir) {
+                    // … then we found a more general implicant.
+                    has_peer = true;
+                    break;
+                }
+            }
+            // The above loop exhaustively checks for *all* potentially more
+            // general implicants.  So if we still haven't found a peer,
+            // then this is actually a prime implicant!
+            let is_prime = !has_peer;
+            (ctx.report_fn)(mask_m, face, is_prime);
+        }
+    }
+}
+
+#[test]
+fn test_report() {
+    // Prepare
+    let mut report_target: Vec<(u32, u32, bool)> = vec![];
+    {
+    let mut report = |mask_m: u32, mask_nonm: u32, prime: bool| {
+            report_target.push((mask_m, mask_nonm, prime));
+        };
+    let mut ctx = Context{
+        sampling_fn: &mut test_sample_fail,
+        report_fn: &mut report,
+        arity: 3,
+    };
+    let mut chunks_from = HashMap::new();
+    {
+    let chunk = ctx.insert_chunk(&mut chunks_from, 0);
+    chunk.set(0b000);
+    chunk.set(0b110);
+    chunk.set(0b111);
+    }
+    assert_eq!(1, chunks_from.len());
+
+    // Call under test
+    report_0n(&mut ctx, 1, &chunks_from);
+    }
+
+    // Check
+    // FIXME: Non-deterministic order.  Dang.
+    assert_eq!(3, report_target.len());
+    println!("{:?}", report_target);
+    assert_eq!((0, 0b000, true), report_target[0]);
+    assert_eq!((0, 0b110, false), report_target[1]);
+    assert_eq!((0, 0b111, false), report_target[2]);
+}
