@@ -64,8 +64,6 @@ Although `implicants` has some dependencies (`fixedbitset`), I hope this will re
 
 ### Additional step for best performance
 
-<!-- FIXME: Does this apply to this library? -->
-
 For best performance, you should allow `rustc` (or in this case, LLVM actually)
 to use special instructions that can speed up execution even more.
 Specifically, this library makes extensive use of `u32::count_ones()`,
@@ -158,7 +156,9 @@ FIXME: Test this.
 
 ## TODOs
 
-Everything.
+- Find out how to be accessible from C
+- Check binary size, and do `[nostdlib]` magic if necessary
+- Measure performance, use FNV HashMap if reasonable
 
 ## Contribute
 
