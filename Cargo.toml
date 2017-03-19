@@ -2,7 +2,7 @@
 name = "implicants"
 version = "0.1.0"
 authors = ["Ben Wiederhake <BenWiederhake.GitHub@gmx.de>"]
-description = "Enumerates (prime) implicants of an arbitrary function"
+description = "Enumerate (prime) implicants of an arbitrary function"
 repository = "https://github.com/BenWiederhake/implicants"
 readme = "README.md"
 license = "GPL-3.0"
@@ -11,3 +11,4 @@ license = "GPL-3.0"
 [dependencies]
 # Used for the storage of the 3^n bits
 fixedbitset = "0.1.5"
+subint = { git = "https://github.com/BenWiederhake/subint.git" }
