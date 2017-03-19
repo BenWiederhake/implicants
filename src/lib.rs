@@ -45,6 +45,7 @@ impl Context {
 }
 
 fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
+    assert!(ctx.arity < 32, "Can only handle at most 31 bits, but tried {} bits", ctx.arity);
     assert_eq!(into.len(), 0);
 
     let is_any;
@@ -53,7 +54,8 @@ fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
     // so wrap it into a separate scope.
     {
     let chunk: &mut Bitset = ctx.insert_chunk(into, 0);
-    for i in 0..mk_ones(ctx.arity) {
+    // I could probably extend that to include 32, but then this would overflow on x86:
+    for i in 0..(1 << ctx.arity) {
         if (ctx.sampling_fn)(i) {
             chunk.set(i);
         }
@@ -92,6 +94,34 @@ fn test_build_0() {
     assert_eq!(false, c.is(5));
     assert_eq!(true, c.is(6));
     assert_eq!(false, c.is(7));
+}
+
+#[test]
+fn test_build_0_full() {
+    // Prepare
+    let sample_fn: SampleFn = |a| { true };
+    let false_fn: ReportFn = |a, b, c| { panic!("But there is nothing to report?!"); };
+    let ctx = Context{
+        sampling_fn: sample_fn,
+        report_fn: false_fn,
+        arity: 3,
+    };
+    let mut chunks = HashMap::new();
+
+    // Call under test
+    build_rank_0(&ctx, &mut chunks);
+
+    // Check
+    assert_eq!(1, chunks.len());
+    let c: &Bitset = &chunks[&0];
+    assert_eq!(true, c.is(0));
+    assert_eq!(true, c.is(1));
+    assert_eq!(true, c.is(2));
+    assert_eq!(true, c.is(3));
+    assert_eq!(true, c.is(4));
+    assert_eq!(true, c.is(5));
+    assert_eq!(true, c.is(6));
+    assert_eq!(true, c.is(7));
 }
 
 #[test]
