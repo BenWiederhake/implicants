@@ -17,6 +17,7 @@
 extern crate subint;
 mod bits;
 mod masked_count;
+pub mod c;
 
 use std::collections::HashMap;
 use bits::Bitset;
