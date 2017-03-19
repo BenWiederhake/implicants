@@ -330,3 +330,32 @@ fn test_report() {
     assert_eq!((0, 0b110, false), report_target[1]);
     assert_eq!((0, 0b111, false), report_target[2]);
 }
+
+pub fn generate_all<'a, 'b>(sampling_fn: &'a mut FnMut(u32) -> bool,
+        report_fn: &'b mut FnMut(u32, u32, bool),
+        arity: u32) {
+    let mut ctx = Context{
+        sampling_fn: sampling_fn,
+        report_fn: report_fn,
+        arity: arity,
+    };
+    let mut map0 = ChunkMap::new();
+    let mut map1 = ChunkMap::new();
+    build_rank_0(&mut ctx, &mut map0);
+    report_0n(&mut ctx, 0, &mut map0);
+
+    for rank in 1..ctx.arity {
+        let from: &mut ChunkMap;
+        let into: &mut ChunkMap;
+        if rank % 2 == 0 {
+            from = &mut map1;
+            into = &mut map0;
+        } else {
+            from = &mut map0;
+            into = &mut map1;
+        }
+        build_rank_n(&ctx, rank, into, from);
+        from.clear();
+        report_0n(&mut ctx, rank, into);
+    }
+}
