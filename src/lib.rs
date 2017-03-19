@@ -34,14 +34,35 @@ struct Context {
     arity: u32,
 }
 
+impl Context {
+    fn new_chunk(&self) -> Bitset {
+        Bitset::of(self.arity)
+    }
+
+    fn insert_chunk<'a>(&self, into: &'a mut ChunkMap, at: u32) -> &'a mut Bitset {
+        into.entry(at).or_insert(self.new_chunk())
+    }
+}
+
 fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
     assert_eq!(into.len(), 0);
-    let chunk: &mut Bitset = into.entry(0).or_insert(Bitset::of(ctx.arity));
 
+    let is_any;
+
+    // Need to end lifetime of 'chunk' before we remove it from the container,
+    // so wrap it into a separate scope.
+    {
+    let chunk: &mut Bitset = ctx.insert_chunk(into, 0);
     for i in 0..mk_ones(ctx.arity) {
         if (ctx.sampling_fn)(i) {
             chunk.set(i);
         }
+    }
+    is_any = chunk.is_any();
+    }
+
+    if !is_any {
+        into.remove(&0);
     }
 }
 
@@ -71,4 +92,23 @@ fn test_build_0() {
     assert_eq!(false, c.is(5));
     assert_eq!(true, c.is(6));
     assert_eq!(false, c.is(7));
+}
+
+#[test]
+fn test_build_0_empty() {
+    // Prepare
+    let sample_fn: SampleFn = |a| { false };
+    let false_fn: ReportFn = |a, b, c| { panic!("But there is nothing to report?!"); };
+    let ctx = Context{
+        sampling_fn: sample_fn,
+        report_fn: false_fn,
+        arity: 3,
+    };
+    let mut chunks = HashMap::new();
+
+    // Call under test
+    build_rank_0(&ctx, &mut chunks);
+
+    // Check
+    assert_eq!(0, chunks.len());
 }
