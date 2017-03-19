@@ -22,16 +22,14 @@ use std::collections::HashMap;
 use bits::Bitset;
 
 type ChunkMap = HashMap<u32, Bitset>;
-type SampleFn = fn(u32) -> bool;
-type ReportFn = fn(u32, u32, bool);
 
-struct Context {
-    sampling_fn: SampleFn,
-    report_fn: ReportFn,
+struct Context<'a, 'b> {
+    sampling_fn: &'a mut FnMut(u32) -> bool,
+    report_fn: &'b mut FnMut(u32, u32, bool),
     arity: u32,
 }
 
-impl Context {
+impl<'x, 'y> Context<'x, 'y> {
     fn new_chunk(&self) -> Bitset {
         Bitset::of(self.arity)
     }
@@ -41,7 +39,7 @@ impl Context {
     }
 }
 
-fn build_rank_0(ctx: &Context, into: &mut ChunkMap) {
+fn build_rank_0(ctx: &mut Context, into: &mut ChunkMap) {
     assert!(ctx.arity < 32, "Can only handle at most 31 bits, but tried {} bits", ctx.arity);
     assert_eq!(into.len(), 0);
 
@@ -84,15 +82,15 @@ fn test_report_fail(_: u32, _: u32, _: bool) {
 #[test]
 fn test_build_0() {
     // Prepare
-    let ctx = Context{
-        sampling_fn: test_sample_mod3,
-        report_fn: test_report_fail,
+    let mut ctx = Context{
+        sampling_fn: &mut test_sample_mod3,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
 
     // Call under test
-    build_rank_0(&ctx, &mut chunks);
+    build_rank_0(&mut ctx, &mut chunks);
 
     // Check
     assert_eq!(1, chunks.len());
@@ -110,15 +108,15 @@ fn test_build_0() {
 #[test]
 fn test_build_0_full() {
     // Prepare
-    let ctx = Context{
-        sampling_fn: test_sample_true,
-        report_fn: test_report_fail,
+    let mut ctx = Context{
+        sampling_fn: &mut test_sample_true,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
 
     // Call under test
-    build_rank_0(&ctx, &mut chunks);
+    build_rank_0(&mut ctx, &mut chunks);
 
     // Check
     assert_eq!(1, chunks.len());
@@ -136,15 +134,15 @@ fn test_build_0_full() {
 #[test]
 fn test_build_0_empty() {
     // Prepare
-    let ctx = Context{
-        sampling_fn: test_sample_false,
-        report_fn: test_report_fail,
+    let mut ctx = Context{
+        sampling_fn: &mut test_sample_false,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let mut chunks = HashMap::new();
 
     // Call under test
-    build_rank_0(&ctx, &mut chunks);
+    build_rank_0(&mut ctx, &mut chunks);
 
     // Check
     assert_eq!(0, chunks.len());
@@ -198,13 +196,14 @@ fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) 
 #[test]
 fn test_build_n() {
     // Prepare
-    let ctx = Context{
-        sampling_fn: test_sample_mux,
-        report_fn: test_report_fail,
+    let mut ctx = Context{
+        sampling_fn: &mut test_sample_mux,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let mut chunks_from = HashMap::new();
-    build_rank_0(&ctx, &mut chunks_from);
+    build_rank_0(&mut ctx, &mut chunks_from);
+    let ctx = ctx;
     assert_eq!(1, chunks_from.len());
     let chunks_from = chunks_from;
     let mut chunks_into = HashMap::new();
@@ -235,8 +234,8 @@ fn test_build_n() {
 fn test_build_n_empty() {
     // Prepare
     let ctx = Context{
-        sampling_fn: test_sample_fail,
-        report_fn: test_report_fail,
+        sampling_fn: &mut test_sample_fail,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let mut chunks_from = HashMap::new();
@@ -256,8 +255,8 @@ fn test_build_n_empty() {
 fn test_build_n_empty_imm() {
     // Prepare
     let ctx = Context{
-        sampling_fn: test_sample_fail,
-        report_fn: test_report_fail,
+        sampling_fn: &mut test_sample_fail,
+        report_fn: &mut test_report_fail,
         arity: 3,
     };
     let chunks_from = HashMap::new();
