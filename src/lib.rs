@@ -143,7 +143,7 @@ fn test_build_0_empty() {
 }
 
 fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) {
-    assert!(from.is_empty());
+    assert!(into.is_empty());
 
     /* Quick path in case there's nothing to do *at all*. */
     if from.len() == 0 {
@@ -185,4 +185,45 @@ fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) 
             into.remove(&mask_m);
         }
     }
+}
+
+#[test]
+fn test_build_n() {
+    // Prepare
+    let sample_fn: SampleFn = |x| {
+        // Multiplexer
+        1 == 1 & (x >> (1 + (x & 1)))
+    };
+    let false_fn: ReportFn = |_, _, _| { panic!("But there is nothing to report?!"); };
+    let ctx = Context{
+        sampling_fn: sample_fn,
+        report_fn: false_fn,
+        arity: 3,
+    };
+    let mut chunks_from = HashMap::new();
+    build_rank_0(&ctx, &mut chunks_from);
+    assert_eq!(1, chunks_from.len());
+    let chunks_from = chunks_from;
+    let mut chunks_into = HashMap::new();
+
+    // Call under test
+    build_rank_n(&ctx, 1, &mut chunks_into, &chunks_from);
+
+    // Check
+    assert_eq!(3, chunks_into.len());
+    let c: &Bitset = &chunks_into[&0b001];  // XXM
+    assert_eq!(false, c.is(0b000));
+    assert_eq!(false, c.is(0b010));
+    assert_eq!(false, c.is(0b100));
+    assert_eq!(true, c.is(0b110));
+    let c: &Bitset = &chunks_into[&0b010];  // XMX
+    assert_eq!(false, c.is(0b000));
+    assert_eq!(false, c.is(0b001));
+    assert_eq!(false, c.is(0b100));
+    assert_eq!(true, c.is(0b101));
+    let c: &Bitset = &chunks_into[&0b100];  // MXX
+    assert_eq!(false, c.is(0b000));
+    assert_eq!(false, c.is(0b001));
+    assert_eq!(true, c.is(0b010));
+    assert_eq!(false, c.is(0b011));
 }
