@@ -30,7 +30,7 @@ pub extern "C" fn implicants_generate(sample: SampleFnC,
                                       arity: uint32_t) {
     let sample_wrapped = &|v| sample(sample_base, v) != 0;
     let mut report_wrapped = &mut |m, nonm, prime| {
-        report(report_base, m, nonm, if prime {0} else {1});
+        report(report_base, m, nonm, if prime {1} else {0});
     };
 
     ::generate(sample_wrapped, report_wrapped, arity);

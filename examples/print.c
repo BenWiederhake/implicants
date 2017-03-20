@@ -18,25 +18,24 @@
 /* Compile with:
 
 gcc -o print print.c -I../include/ -L../target/debug/ \
-    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
-
+    -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
 
 Or more pedantically:
 
 gcc -o print print.c -I../include/ -L../target/debug/ \
-    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
+    -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
     -Wall -Wextra -pedantic -std=c99
 
 This is also valid C++ code!  The header file properly includes C++
 headers when it can.  Copy this file to 'print.cpp', and compile as:
 
 g++ -o print print.cpp -I../include/ -L../target/debug/ \
-    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
+    -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
 
 Or more pedantically:
 
 g++ -o print print.cpp -I../include/ -L../target/debug/ \
-    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
+    -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
     -Wall -Wextra -pedantic -std=c++98
 
 */
