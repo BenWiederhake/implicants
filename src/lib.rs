@@ -17,6 +17,8 @@
 extern crate subint;
 mod bits;
 mod masked_count;
+
+#[cfg(feature = "c-abi")]
 pub mod c;
 
 use std::collections::HashMap;

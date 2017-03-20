@@ -14,19 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-use generate;
+// extern crate libc;
 
-type SampleFnC = extern "C" fn(*const u8, u32) -> bool;
-type ReportFnC = extern "C" fn(*const u8, u32, u32, bool);
+extern crate libc;
+use self::libc::{c_int, c_void, uint32_t};
+
+type SampleFnC = extern "C" fn(*mut c_void, uint32_t) -> c_int;
+type ReportFnC = extern "C" fn(*mut c_void, uint32_t, uint32_t, c_int);
 
 #[no_mangle]
 pub extern "C" fn implicants_generate(sample: SampleFnC,
-                                      sample_base: *const u8,
+                                      sample_base: *mut c_void,
                                       report: ReportFnC,
-                                      report_base: *const u8,
-                                      arity: u32) {
-    let sample_wrapped = &|v| sample(sample_base, v);
-    let mut report_wrapped = &mut |m, nonm, prime| { report(report_base, m, nonm, prime); };
+                                      report_base: *mut c_void,
+                                      arity: uint32_t) {
+    let sample_wrapped = &|v| sample(sample_base, v) != 0;
+    let mut report_wrapped = &mut |m, nonm, prime| {
+        report(report_base, m, nonm, if prime {0} else {1});
+    };
 
-    generate(sample_wrapped, report_wrapped, arity);
+    ::generate(sample_wrapped, report_wrapped, arity);
 }
