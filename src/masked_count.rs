@@ -70,7 +70,7 @@ fn test_count_corner() {
     assert_eq!(vec![0, 0x80], up(0x80).collect::<Vec<_>>());
     assert_eq!(vec![0, 1, 8, 9], up(9).collect::<Vec<_>>());
     assert_eq!(vec![0x0000_0000, 0x0000_0001, 0x8000_0000, 0x8000_0001],
-        up(0x8000_0001).collect::<Vec<_>>());
+               up(0x8000_0001).collect::<Vec<_>>());
     assert_eq!(vec![0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70],
-        up(0x70).collect::<Vec<_>>());
+               up(0x70).collect::<Vec<_>>());
 }

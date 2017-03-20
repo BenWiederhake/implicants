@@ -25,12 +25,12 @@ pub struct Bitset {
 
 impl Bitset {
     pub fn of(nbits: u32) -> Self {
-        assert!(nbits < 32, "Can only handle at most 31 bits, but tried {} bits", nbits);
+        assert!(nbits < 32,
+                "Can only handle at most 31 bits, but tried {} bits",
+                nbits);
         // I could probably extend that to include 32, but then this would overflow on x86:
         let len = (1usize << nbits) as usize;
-        Bitset {
-            backing: fixedbitset::FixedBitSet::with_capacity(len),
-        }
+        Bitset { backing: fixedbitset::FixedBitSet::with_capacity(len) }
     }
 
     pub fn set(&mut self, mask: u32) {
@@ -39,7 +39,9 @@ impl Bitset {
 
     pub fn is(&self, mask: u32) -> bool {
         assert!((mask as usize) < self.backing.len(),
-            "Accessed {}, but len is only {}", mask, self.backing.len());
+                "Accessed {}, but len is only {}",
+                mask,
+                self.backing.len());
         self.backing.contains(mask as usize)
     }
 

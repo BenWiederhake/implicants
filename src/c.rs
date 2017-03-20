@@ -20,14 +20,13 @@ type SampleFnC = extern "C" fn(*const u8, u32) -> bool;
 type ReportFnC = extern "C" fn(*const u8, u32, u32, bool);
 
 #[no_mangle]
-pub extern "C" fn implicants_generate(
-        sample: SampleFnC, sample_base: *const u8,
-        report: ReportFnC, report_base: *const u8,
-        arity: u32) {
-    let sample_wrapped = &|v| { sample(sample_base, v) };
-    let mut report_wrapped = &mut |m, nonm, prime| {
-        report(report_base, m, nonm, prime);
-    };
+pub extern "C" fn implicants_generate(sample: SampleFnC,
+                                      sample_base: *const u8,
+                                      report: ReportFnC,
+                                      report_base: *const u8,
+                                      arity: u32) {
+    let sample_wrapped = &|v| sample(sample_base, v);
+    let mut report_wrapped = &mut |m, nonm, prime| { report(report_base, m, nonm, prime); };
 
     generate(sample_wrapped, report_wrapped, arity);
 }
