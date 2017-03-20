@@ -17,10 +17,12 @@
 extern crate implicants;
 
 fn main() {
-    let my_fn = |x: u32| {(x % 3) == 0};
+    let my_fn = |x: u32| (x % 3) == 0;
     let mut print_it = |mask_gap: u32, value: u32, is_prime: bool| {
-        println!("{:032b}/{:032b} is a{} implicant.", mask_gap, value,
-            if is_prime {" prime"} else {"n"});
+        println!("{:032b}/{:032b} is a{} implicant.",
+                 mask_gap,
+                 value,
+                 if is_prime { " prime" } else { "n" });
     };
 
     println!("Hello world!");

@@ -17,9 +17,9 @@
 extern crate implicants;
 
 fn main() {
-    let my_fn = |x: u32| {(x % 3) == 0};
+    let my_fn = |x: u32| (x % 3) == 0;
     let mut buffer: Vec<(u32, u32, bool)> = Vec::new();
-    
+
     {
         // Need to return borrow of 'buffer' before we iterate.
         let mut store_it = |mask_gap: u32, value: u32, is_prime: bool| {
@@ -30,8 +30,10 @@ fn main() {
     }
 
     for (mask_gap, value, is_prime) in buffer {
-        println!("{:032b}/{:032b} is a{} implicant.", mask_gap, value,
-                if is_prime {" prime"} else {"n"});
+        println!("{:032b}/{:032b} is a{} implicant.",
+                 mask_gap,
+                 value,
+                 if is_prime { " prime" } else { "n" });
     }
     println!("That's it.");
 }
