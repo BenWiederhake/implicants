@@ -11,3 +11,7 @@ before_script:
   - mkdir -p .cargo
   - echo "[build]" > .cargo/config
   - echo "rustflags = [\"-C\", \"target-feature=+popcnt\"]" > .cargo/config
+
+after_script:
+  - { cd examples && gcc -o print print.c -I../include/ -L../target/debug/ -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil -Wall -Wextra -pedantic -std=c99 }
+  - { cd examples && ./print }
