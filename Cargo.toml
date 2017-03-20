@@ -12,3 +12,6 @@ license = "GPL-3.0"
 # Used for the storage of the 3^n bits
 fixedbitset = "0.1.5"
 subint = { git = "https://github.com/BenWiederhake/subint.git" }
+
+[lib]
+crate-type = ["staticlib", "rlib"]

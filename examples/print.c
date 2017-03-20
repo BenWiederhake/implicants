@@ -17,21 +17,26 @@
 
 /* Compile with:
 
-gcc -o print print.c -I../include/ ../target/debug/libimplicants.rlib
+gcc -o print print.c -I../include/ -L../target/debug/ \
+    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
+
 
 Or more pedantically:
 
-gcc -o print print.c -I../include/ ../target/debug/libimplicants.rlib \
+gcc -o print print.c -I../include/ -L../target/debug/ \
+    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
     -Wall -Wextra -pedantic -std=c99
 
 This is also valid C++ code!  The header file properly includes C++
 headers when it can.  Copy this file to 'print.cpp', and compile as:
 
-g++ -o print print.cpp -I../include/ ../target/debug/libimplicants.rlib
+g++ -o print print.cpp -I../include/ -L../target/debug/ \
+    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
 
 Or more pedantically:
 
-g++ -o print print.cpp -I../include/ ../target/debug/libimplicants.rlib \
+g++ -o print print.cpp -I../include/ -L../target/debug/ \
+    -limplicants -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil \
     -Wall -Wextra -pedantic -std=c++98
 
 */
@@ -47,7 +52,7 @@ static int my_fn(void* __base, uint32_t v) {
 
 static void print_it(void* __base, uint32_t mask_gap, uint32_t value, int is_prime) {
     (void)sizeof(__base);  /* Ignore argument */
-    printf("%08x}/%08x is a%s implicant.", mask_gap, value,
+    printf("%08x/%08x is a%s implicant.\n", mask_gap, value,
         is_prime ? " prime" : "n");
 }
 
@@ -55,9 +60,9 @@ int main(int argc, char** argv) {
     (void)sizeof(argc);  /* Ignore argument */
     (void)sizeof(argv);  /* Ignore argument */
 
-    printf("Hello world!");
+    printf("Hello world!\n");
     implicants_generate(my_fn, NULL, print_it, NULL, 3);
-    printf("That's all.");
+    printf("That's all.\n");
 
     return 0;
 }
