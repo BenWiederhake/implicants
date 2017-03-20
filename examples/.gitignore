@@ -1,0 +1,5 @@
+/print.o
+/print
+
+# Prevent the user from fucking up:
+/print.cpp
