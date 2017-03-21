@@ -1,6 +1,6 @@
 [package]
 name = "implicants"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Ben Wiederhake <BenWiederhake.GitHub@gmx.de>"]
 description = "Enumerate (prime) implicants of an arbitrary function"
 repository = "https://github.com/BenWiederhake/implicants"
@@ -11,7 +11,7 @@ license = "GPL-3.0"
 [dependencies]
 # Used for the storage of the 3^n bits
 fixedbitset = "0.1.5"
-subint = { git = "https://github.com/BenWiederhake/subint.git" }
+subint = { git = "https://github.com/BenWiederhake/subint.git", version = "0.2.0" }
 libc = { version = "0.2.21", optional = true }
 
 [features]
