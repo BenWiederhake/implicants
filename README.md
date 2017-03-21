@@ -121,6 +121,67 @@ $ gcc -o my_artifact $MY_OBJECTS -Lpath/to/implicants/target/release/ \
 
 ## Usage
 
+### Semantics
+
+The core (and only) API is the function `generate` which
+essentially only takes two callbacks of types:
+```
+sampling_fn: &'a Fn(u32) -> bool,
+report_fn: &'b mut FnMut(u32, u32, bool),
+```
+
+That's a lot syntax.
+
+#### The "sampling" callback
+
+Obviously one needs access to `f` in order to enumerate its implicants.
+I think that an intuitive "format" for this is to enable the user to
+provide a literal function object.
+
+This must be a `Fn`, so the callback must be immutable.
+This may be overly strict, but as this is meant to be a "pure" function,
+it matches the intuition behind this.
+
+Note that Rust doesn't support runtime-sized integers out of the box,
+and in this context BigIntegers don't make too much sense anyway.
+(Remember, exponential running time!)
+So `u32` should usually fit all your input bits.
+The exact arity (i.e., number of bits your function cares about)
+is given as the `arity` argument to `generate`.
+
+This callback is called exactly `2^arity` times.
+
+#### The "report" callback
+
+This callback is called once for each implicant found, but no order is guaranteed.
+
+<!--
+    Technically, *some* order *is* guaranteed:
+    When you see an implicant with some `k == mask_gap.count_ones()`,
+    then it's currently guaranteed that future implicants have at least
+    this many bits set in the `mask_gap`, too.
+    It's very unlikely that this ever changes in future versions.
+    If so, I'll call it a breaking change, and continue versioning from 2.0.0.
+-->
+
+It is allowed to mutate it's own state; so closures that access a `&mut` are perfectly fine.
+In `tests/collect.rs` you see an example for exactly this.
+
+The arguments to your callback must be:
+
+```
+mask_gap: u32, value: u32, is_prime: bool
+```
+
+`is_prime` just indicates whether the reported implicant is actually a prime implicant.
+Each implicant is only reported once.
+As an implicant is actually a ternary value (`0`, `M`, `1`),
+this needs some little thought to store:
+- `M` becomes `1` in `mask_gap` and `0` in `value`
+- `0` and `1` become `0` and `1` in `value` respectively, and `mask_gap` is `0` in both cases.
+
+The order and position correspond exactly to whatever `sample_fn` defines it to be.
+
 ### From Rust
 
 Just use it!
@@ -147,7 +208,7 @@ outside it's closure environment.
 
 ### From C
 
-Literally just call it:
+Just call it:
 
 ```C
 #include <stdio.h>
@@ -171,6 +232,8 @@ This makes it easy to avoid needing global state.
 ## TODOs
 
 - Check whether `cdylib` makes more sense.
+- Filter implicants, early abort, and other weird things.
+  Not sure whether I actually need that, so I'll first wait.
 - Think about optimizations, if necessary:
   * Measure performance, use FNV HashMap if reasonable.
   * Transfer implicants in bulk to avoid cache trashing.

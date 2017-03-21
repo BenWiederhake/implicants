@@ -1,6 +1,6 @@
 [package]
 name = "implicants"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Ben Wiederhake <BenWiederhake.GitHub@gmx.de>"]
 description = "Enumerate (prime) implicants of an arbitrary function"
 repository = "https://github.com/BenWiederhake/implicants"
