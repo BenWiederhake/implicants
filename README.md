@@ -6,8 +6,10 @@ Provides a highly efficient way to enumerate all implicants / prime implicants
 of an arbitrary binary function.
 
 This library provides:
-- a "raw" interface to do it, with as little overhead as possible.
-- a C header for the "raw" interface.
+- Rust interface
+- Rust examples (see `tests/`)
+- C interface (see `include/implicants.h`)
+- C and C++ example (see `examples/print.c`)
 
 ## Table of Contents
 
@@ -54,13 +56,16 @@ Add at an appropriate position to your `Cargo.toml`:
 
 ```TOML
 [dependencies]
-masked_permute = { git = "https://github.com/BenWiederhake/implicants.git" }
+implicants = { git = "https://github.com/BenWiederhake/implicants.git" }
 ```
 
 <!-- FIXME: Test this. -->
 
 That should be it.
-Although `implicants` has some dependencies (`fixedbitset`), I hope this will remain easy.
+
+In case you don't want libc to be pulled, just disable the feature `c-abi`.
+(Note that, obviously, the C ABI won't be available then.
+I don't know how to conditionally remove cratetypes.)
 
 ### Additional step for best performance
 
@@ -92,16 +97,27 @@ current benchmarks are concerned.
 
 ### From C
 
-Include the header file in `include/`, and there's
-[something weird](http://siciarz.net/24-days-of-rust-calling-rust-from-other-languages/)
-going on when executing:
+Provide the header file in `include/` when compiling, like this
 
 ```
-$ gcc main.c -L ../target -lstringtools-261cf0fc14ce408c -o main
-$ LD_LIBRARY_PATH=../target ./main
+$ gcc my_compilation_unit.c -o my_compilation_unit.o -I../include/
 ```
 
-FIXME: Write this.
+And link against it, plus all transitive dependencies (which you can see
+[when compiling, currently](https://github.com/rust-lang/rust/issues/25820)).
+
+```
+$ gcc -o my_artifact $MY_OBJECTS -Lpath/to/implicants/target/release/ \
+      -limplicants -lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -lrt -lutil
+```
+
+<!--
+  It appears as you only really need `-limplicants -lpthreads -ldl`,
+  which also appears to reduce binary size by a few KiB.  Do this only
+  if you know what you're doing.
+  But hey, you're the one reading HTML comments in a Markdown file,
+  so go ahead and have fun ;-)
+-->
 
 ## Usage
 
@@ -131,36 +147,36 @@ outside it's closure environment.
 
 ### From C
 
-Uhh, not sure, but I guess something like:
+Literally just call it:
 
 ```C
 #include <stdio.h>
 #include <implicants.h>
 
-int my_fn(x) {
-    return (x % 3) == 0;
-}
+int my_fn( / * args */ ) { /* ... */ }
+#define MY_FNS_ARITY 3
 
-void print_it(uint32_t mask_gap, uint32_t value, int is_prime) {
-    printf("%08x}/%08x is a%s implicant.", mask_gap, value,
-        is_prime ? " prime" : "n");
-}
+void print_it( /* args */ ) { /* ... */ }
 
 int main(int argc, char** argv) {
-    printf("Hello world!");
-    implicants_enumerate(6, my_fn, print_it);
-    printf("That's it.");
+    implicants_enumerate(my_fn, NULL, print_it, NULL, MY_FNS_ARITY);
     return 0;
 }
 ```
 
-FIXME: Test this.
+What ends up being `NULL` pointers in the above example is actually a
+"context" void pointer that is passed as-is to your callback.
+This makes it easy to avoid needing global state.
 
 ## TODOs
 
-- Find out how to be accessible from C
-- Check binary size, and do `[nostdlib]` magic if necessary
-- Measure performance, use FNV HashMap if reasonable
+- Check whether `cdylib` makes more sense.
+- Think about optimizations, if necessary:
+  * Measure performance, use FNV HashMap if reasonable.
+  * Transfer implicants in bulk to avoid cache trashing.
+    (After all, `report_0n` needs to read from "all over" a chunk!)
+  * Handle all-ones chunks more efficiently. (Might not have any impact.)
+  * In `build_rank_n`, check several subchunks for existence?
 
 ## Contribute
 
