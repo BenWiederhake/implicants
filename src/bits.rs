@@ -17,10 +17,11 @@
 //! Thin layer of arbitrary bitset implementation.
 //! I want to be able to replace it easily.
 
-extern crate fixedbitset;
+extern crate bit_vec;
 
 pub struct Bitset {
-    backing: fixedbitset::FixedBitSet,
+    backing: bit_vec::BitVec,
+    any: bool,
 }
 
 impl Bitset {
@@ -30,11 +31,15 @@ impl Bitset {
                 nbits);
         // I could probably extend that to include 32, but then this would overflow on x86:
         let len = (1usize << nbits) as usize;
-        Bitset { backing: fixedbitset::FixedBitSet::with_capacity(len) }
+        Bitset {
+            backing: bit_vec::BitVec::from_elem(len, false),
+            any: false,
+        }
     }
 
     pub fn set(&mut self, mask: u32) {
         self.backing.set(mask as usize, true);
+        self.any = true;
     }
 
     pub fn is(&self, mask: u32) -> bool {
@@ -42,10 +47,10 @@ impl Bitset {
                 "Accessed {}, but len is only {}",
                 mask,
                 self.backing.len());
-        self.backing.contains(mask as usize)
+        self.backing.get(mask as usize).unwrap()
     }
 
     pub fn is_any(&self) -> bool {
-        self.backing.count_ones(..) > 0
+        self.any
     }
 }

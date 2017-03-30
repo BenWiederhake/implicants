@@ -10,7 +10,7 @@ license = "GPL-3.0"
 
 [dependencies]
 # Used for the storage of the 3^n bits
-fixedbitset = "0.1.5"
+bit-vec = "0.4.3"
 subint = { git = "https://github.com/BenWiederhake/subint.git", version = "0.2.0" }
 libc = { version = "0.2.21", optional = true }
 
