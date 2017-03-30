@@ -16,6 +16,7 @@
 
 extern crate implicants;
 
+#[test]
 fn main() {
     let my_fn = |x: u32| (x % 3) == 0;
     let mut buffer: Vec<(u32, u32, bool)> = Vec::new();
@@ -28,6 +29,9 @@ fn main() {
         println!("Hello world!");
         implicants::generate(&my_fn, &mut store_it, 3);
     }
+
+    assert_eq!(buffer, vec![(0b000, 0b000, true), (0b000, 0b011, true),
+                            (0b000, 0b110, true)]);
 
     for (mask_gap, value, is_prime) in buffer {
         println!("{:032b}/{:032b} is a{} implicant.",

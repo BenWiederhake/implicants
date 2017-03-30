@@ -16,6 +16,7 @@
 
 extern crate implicants;
 
+#[test]
 fn main() {
     let my_fn = |x: u32| (x % 3) == 0;
     let mut print_it = |mask_gap: u32, value: u32, is_prime: bool| {
