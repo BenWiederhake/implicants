@@ -38,7 +38,7 @@ impl<'x, 'y> Context<'x, 'y> {
     }
 
     fn insert_chunk<'a>(&self, into: &'a mut ChunkMap, at: u32) -> &'a mut Bitset {
-        into.entry(at).or_insert(self.new_chunk())
+        into.entry(at).or_insert_with(|| self.new_chunk())
     }
 }
 
@@ -159,7 +159,7 @@ fn build_rank_n(ctx: &Context, rank: u32, into: &mut ChunkMap, from: &ChunkMap) 
     assert!(into.is_empty());
 
     /* Quick path in case there's nothing to do *at all*. */
-    if from.len() == 0 {
+    if from.is_empty() {
         return;
     }
 
@@ -355,9 +355,9 @@ fn test_report() {
     assert_eq!(vec![true, true, true], seen);
 }
 
-pub fn generate<'a, 'b>(sampling_fn: &'a Fn(u32) -> bool,
-                        report_fn: &'b mut FnMut(u32, u32, bool),
-                        arity: u32) {
+pub fn generate(sampling_fn: &Fn(u32) -> bool,
+                report_fn: &mut FnMut(u32, u32, bool),
+                arity: u32) {
     let mut ctx = Context {
         sampling_fn: sampling_fn,
         report_fn: report_fn,
@@ -365,19 +365,15 @@ pub fn generate<'a, 'b>(sampling_fn: &'a Fn(u32) -> bool,
     };
     let mut map0 = ChunkMap::new();
     let mut map1 = ChunkMap::new();
-    build_rank_0(&mut ctx, &mut map0);
-    report_0n(&mut ctx, &mut map0);
+    build_rank_0(&ctx, &mut map0);
+    report_0n(&mut ctx, &map0);
 
     for rank in 1..ctx.arity {
-        let from: &mut ChunkMap;
-        let into: &mut ChunkMap;
-        if rank % 2 == 0 {
-            from = &mut map1;
-            into = &mut map0;
+        let (from, into) = if rank % 2 == 0 {
+            (&mut map1, &mut map0)
         } else {
-            from = &mut map0;
-            into = &mut map1;
-        }
+            (&mut map0, &mut map1)
+        };
         build_rank_n(&ctx, rank, into, from);
         from.clear();
         report_0n(&mut ctx, into);
