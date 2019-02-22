@@ -359,9 +359,9 @@ pub fn generate(sampling_fn: &Fn(u32) -> bool,
                 report_fn: &mut FnMut(u32, u32, bool),
                 arity: u32) {
     let mut ctx = Context {
-        sampling_fn: sampling_fn,
-        report_fn: report_fn,
-        arity: arity,
+        sampling_fn,
+        report_fn,
+        arity,
     };
     let mut map0 = ChunkMap::new();
     let mut map1 = ChunkMap::new();

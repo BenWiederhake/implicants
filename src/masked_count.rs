@@ -25,7 +25,7 @@ pub struct UpIter {
 pub fn up(mask: u32) -> UpIter {
     UpIter {
         submask: 0,
-        mask: mask,
+        mask,
     }
 }
 
